@@ -1,0 +1,23 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+def timecalc(time):
+    val = time.split()
+    for i in val :
+        if i.isdigit() == False :
+            print 'Again Execute!\nSee you agein!'
+            return
+    tim = int(time)
+    second = tim % 60
+    tim /= 60
+    minutes = tim % 60
+    tim /= 60
+    hour = tim % 24 
+    day =  tim / 24 
+    print time,u'秒  -> [ ', day,u'日',  hour,u'時間', minutes,u'分', second,u'秒 ]'
+
+if __name__ == '__main__' :
+    print 'Enter second number :',
+    time = raw_input()
+    timecalc(time)
+
