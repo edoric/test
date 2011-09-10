@@ -1,0 +1,13 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import itertools
+
+seq = range(10)
+def with_head(iterable, headsize=1):
+    a, b = itertools.tee(iterable)
+    return list(itertools.islice(a, headsize), b
+
+with_head(seq)
+with_head(seq, 4)
+

@@ -1,0 +1,37 @@
+#! /usr/bin/env python
+# -*- coding : utf-8 -*-
+# リスト内包表記
+# シーケンスの要素を処理する為にループを使用する場合には、
+# 常にリスト内包表記に書き換えられないか検討する事。
+size = 10
+L = []
+i = 0
+while i < size:
+    if i % 2 == 0 and i != 4 :
+        L.append(i)
+    i += 1
+
+print L
+
+print [i for i in range(10) if i % 2 == 0 and i != 4]
+
+i = 0
+seq = ['one', 'two', 'three']
+for element in seq:
+    seq[i] = '%d: %s' % (i, element)
+    i += 1
+
+print seq
+
+seq = ['one', 'two', 'three']
+for i, element in enumerate(seq):
+    seq[i] = '%d: %s' % (i, element)
+
+print seq
+
+def _treatment(pos, element):
+    return '%d: %s' % (i, element)
+
+seq = ['one', 'two', 'three']
+print [_treatment(i,el) for i,el in enumerate(seq)]
+

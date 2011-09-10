@@ -1,0 +1,39 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+def openRead(f):
+    fr = open(f, "r").readline
+    while True:
+        text = fr()
+        if text != "" :
+            yield text
+        else :
+            return 
+
+def changeString():
+    while True :
+        try :
+            string = yield
+            print string.upper()
+        except ValueError :
+            print "not print"
+            return 
+
+f = "e:\PySave\script-save\echoserver.py"
+
+t = openRead(f)
+c = changeString()
+c.next()
+while True :
+    try :
+        c.send(t.next())
+    except StopIteration :
+        break 
+
+f = (x for x in open(f).readline() )
+c = changeString()
+c.next()
+for t in f :        
+    c.send(t)
+
+

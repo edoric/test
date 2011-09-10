@@ -1,0 +1,17 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+def calc(val):
+    if val < 20 :
+        price = 800
+    else :
+        price = 750
+    sm = val * price
+    print 'summary : ', sm
+
+if __name__ == '__main__' :
+    print 'Enter number : ',
+    val = raw_input()
+    calc(val)
+
+

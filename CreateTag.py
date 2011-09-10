@@ -1,0 +1,110 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+def guess_charset(data) :
+    f = lambda d, enc: d.decode(enc) and enc
+
+    try: return f(data, 'utf-8')
+    except: pass
+    try: return f(data, 'shift-jis')
+    except: pass
+    try: return f(data, 'euc-jp')
+    except: pass
+    try: return f(data, 'iso2022-jp')
+    except: pass
+    try: return f(data, 'ascii')
+    except: pass
+    return None
+
+def conv(data) :
+    charset = guess_charset(data)
+    print charset
+    try :
+        u = data.decode(charset)
+        return u.encode('utf-8')
+    except: 
+        u = data
+        return u
+
+import MeCab
+import codecs
+import re
+
+PATH = "E:\PySave\Example"
+WNAME = "tag.txt"
+RNAME = "create.txt"
+
+WPATH = PATH + '\\' + WNAME
+RPATH = PATH + '\\' + RNAME
+
+print u"保存先 : ", WPATH
+print u"読込ファイル : ", RPATH
+
+m = MeCab.Tagger()
+rf = open(RPATH, 'r')
+wf = open(WPATH, 'w')
+grplists = [u"助詞", u"助動詞", u"副詞",u"記号",u"接続詞",u"連体詞",u"接続詞",u"動詞",u"形容詞",u"代名詞",u"接尾",u"非自立",u"数",u"人名",u"BOS"]
+rmchar = u""""
+a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,
+A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,
+あ,い,う,え,お,か,き,く,け,こ,
+さ,し,す,せ,そ,た,ち,つ,て,と,
+な,に,ぬ,ね,の,は,ひ,ふ,へ,ほ,
+ま,み,む,め,も,や,ゆ,よ,ら,り,
+る,れ,ろ,わ,を,ん,
+人,
+"""
+rmurl = "http:"
+chars = rmchar.split(',')
+rmlists = [" ",".",":","-","/",",","_","=","<<[","|","?","!","[","]","*"]
+rmlists.extend(chars)
+dic = {}
+ndic = {}
+p = re.compile('http:[a-zA-Z0-9./%_-]*')
+
+for txt in rf.readlines():
+    print 'PREV : ',txt
+    txt = conv(txt)
+    if p.search(txt) != None :
+        txt = p.sub("",txt)
+        print 'AFTER : ',txt
+    n = m.parseToNode(txt)
+    n = n.next
+    while n:
+        lengths = max([n.feature.find(a) for a in grplists ])
+        if n.surface in rmlists :
+            n =n.next
+            continue
+        if n.surface.isdigit() :
+            n = n.next
+            continue
+        if lengths == -1 :
+            if not dic.has_key(n.surface):
+                dic[n.surface] = 1
+                ndic[n.surface] = n.feature
+            else :
+                dic[n.surface] += 1
+        n = n.next
+
+lists = [(x,y) for x,y in dic.items()]
+lists = sorted(lists, key=lambda x:x[1],reverse=True)
+one, two, three = lists[0][0], lists[1][0], lists[2][0]
+wf.write('************************** KEYWORD **************************\n')
+word = one+','+two+','+three+'\n'
+wf.write(word)
+wf.write('*************************************************************\n')
+for x,y in lists :
+    wf.write(x)
+    wf.write(' : ')
+    wf.write(str(y))
+    wf.write('            ')
+    wf.write(ndic[x])
+    wf.write('\n')
+wf.close()
+
+"""
+            wf.write(n.surface)
+            wf.write('\n')
+            wf.write(n.feature)
+            wf.write('\n')
+"""

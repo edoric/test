@@ -1,0 +1,24 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+def calc(rang):
+    val = rang.split()
+    if len(val) != 1 :
+        print 'Again Execute!\nSee you agein!'
+        return
+    num = val[0]
+    if num.isdigit() == False :
+        print 'Again Execute!\nSee you agein!'
+        return
+
+    a = num % 7
+    b = num % 5
+    c = num % 3
+    s = 15 * a + 21 * b + 70 * c
+    print s % 105
+
+if __name__ == '__main__' :
+    print 'Enter value : ',
+    rang = raw_input()
+    calc(rang)
+

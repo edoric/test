@@ -1,0 +1,24 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+def openRead(f):
+    fr = open(f, "r").readline
+    while True:
+        text = fr()
+        if text != "" :
+            yield text
+        else :
+            return 
+
+f = "e:\PySave\script-save\echoserver.py"
+
+t = openRead(f)
+while True :
+    try :
+        s = t.next()
+        if s.index('\n') >= 0 :
+            s.replace("\n", "FUZZ")
+        print s
+    except StopIteration :
+        break 
+
