@@ -18,7 +18,7 @@ def guess_charset(data) :
 
 def conv(data) :
     charset = guess_charset(data)
-    print charset
+#    print charset
     try :
         u = data.decode(charset)
         return u.encode('utf-8')
@@ -29,6 +29,8 @@ def conv(data) :
 import MeCab
 import codecs
 import re
+import random
+from PIL import Image,ImageDraw,ImageFont
 
 PATH = "E:\PySave\Example"
 WNAME = "tag.txt"
@@ -56,18 +58,19 @@ A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,
 """
 rmurl = "http:"
 chars = rmchar.split(',')
-rmlists = [" ",".",":","-","/",",","_","=","<<[","|","?","!","[","]","*"]
+rmlists = [" ",".",":","-","/",",","_","=","<<[","|","?","!","[","]","*",
+        u"「",u"」","(",")"]
 rmlists.extend(chars)
 dic = {}
 ndic = {}
 p = re.compile('http:[a-zA-Z0-9./%_-]*')
 
 for txt in rf.readlines():
-    print 'PREV : ',txt
+#    print 'PREV : ',txt
     txt = conv(txt)
     if p.search(txt) != None :
         txt = p.sub("",txt)
-        print 'AFTER : ',txt
+#        print 'AFTER : ',txt
     n = m.parseToNode(txt)
     n = n.next
     while n:
@@ -100,11 +103,45 @@ for x,y in lists :
     wf.write('            ')
     wf.write(ndic[x])
     wf.write('\n')
-wf.close()
 
-"""
-            wf.write(n.surface)
-            wf.write('\n')
-            wf.write(n.feature)
-            wf.write('\n')
-"""
+wf.write('*************************************************************\n')
+wf.write('median keyword color y_point med-y\n')
+img1 = Image.new("RGB", (650,650), (0xff,0xff,0xff))
+draw = ImageDraw.Draw(img1)
+
+listset = list(set([y for x,y in lists]))
+if len(listset) % 2 == 0 :
+    med = listset[len(listset)/2] +listset[len(listset)/2+1] / 2
+else :
+    med = listset[len(listset)/2]
+
+for x,y in lists :
+    x = x.decode('utf-8')
+    yd = y % 10
+    font = ImageFont.truetype("C:\WINDOWS\Fonts\meiryo.ttc",5*yd)
+    ix = random.randint(20,500)
+    iy = random.randint(20,600)
+    color = (0,0,0)
+    ym = y - med
+
+    if ym <= -10.0 :
+        color = (204,255,255)
+    if -10.0 < ym and ym < -5.0 :
+        color = (204,204,204)
+    if -5.0 <= ym and ym < 0 :
+        color = (204,153,153)
+    if 0 <= ym and ym < 5 :
+        color = (204,102,102)
+    if 5 <= ym and ym < 10 :
+        color = (204,51,51)
+    if 10 <= ym :
+        color = (204,0,0)
+
+    draw.text((ix,iy),x,fill=color, font=font)
+    txt = str(med) + ' ' + str(x) + ' ' + str(color) + ' ' + str(y) + ' ' + str(ym) + '\n'
+    wf.write(txt)
+
+wf.close()
+img1.save("e:\PySave\script-save\sample633a.jpg")
+img1.show()
+
