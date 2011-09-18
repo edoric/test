@@ -2,35 +2,44 @@
 # -*- coding: utf-8 -*-
 
 def guess_charset(data) :
-    f = lambda d, enc: d.decode(enc) and enc
+    func = lambda d, enc: d.decode(enc) and enc
 
-    try: return f(data, 'utf-8')
-    except: pass
-    try: return f(data, 'shift-jis')
-    except: pass
-    try: return f(data, 'euc-jp')
-    except: pass
-    try: return f(data, 'iso2022-jp')
-    except: pass
-    try: return f(data, 'ascii')
-    except: pass
+    try:
+        return func(data, 'utf-8')
+    except:
+        pass
+    try:
+        return func(data, 'shift-jis')
+    except:
+        pass
+    try:
+        return func(data, 'euc-jp')
+    except:
+        pass
+    try:
+        return func(data, 'iso2022-jp')
+    except:
+        pass
+    try:
+        return func(data, 'ascii')
+    except:
+        pass
     return None
 
 def conv(data) :
     charset = guess_charset(data)
 #    print charset
     try :
-        u = data.decode(charset)
-        return u.encode('utf-8')
+        deco = data.decode(charset)
+        return deco.encode('utf-8')
     except: 
-        u = data
-        return u
+        deco = data
+        return deco
 
 import MeCab
-import codecs
 import re
 import random
-from PIL import Image,ImageDraw,ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 PATH = "E:\PySave\Example"
 WNAME = "tag.txt"
@@ -42,11 +51,12 @@ RPATH = PATH + '\\' + RNAME
 print u"保存先 : ", WPATH
 print u"読込ファイル : ", RPATH
 
-m = MeCab.Tagger()
-rf = open(RPATH, 'r')
-wf = open(WPATH, 'w')
-grplists = [u"助詞", u"助動詞", u"副詞",u"記号",u"接続詞",u"連体詞",u"接続詞",u"動詞",u"形容詞",u"代名詞",u"接尾",u"非自立",u"数",u"人名",u"BOS"]
-rmchar = u""""
+M = MeCab.Tagger()
+RF = open(RPATH, 'r')
+WF = open(WPATH, 'w')
+GRPLISTS = [u"助詞", u"助動詞", u"副詞", u"記号", u"接続詞", u"連体詞", u"接続詞",
+        u"動詞", u"形容詞", u"代名詞", u"接尾", u"非自立", u"数", u"人名", u"BOS"]
+RMCHAR = u""""
 a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,
 A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,
 あ,い,う,え,お,か,き,く,け,こ,
@@ -56,92 +66,91 @@ A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,
 る,れ,ろ,わ,を,ん,
 人,
 """
-rmurl = "http:"
-chars = rmchar.split(',')
-rmlists = [" ",".",":","-","/",",","_","=","<<[","|","?","!","[","]","*",
-        u"「",u"」","(",")"]
-rmlists.extend(chars)
-dic = {}
-ndic = {}
-p = re.compile('http:[a-zA-Z0-9./%_-]*')
+chars = RMCHAR.split(',')
+RMLISTS = [" ", ".", ":", "-", "/", ",", "_", "=", "<<[", "|", "?", "!", "[","]", "*",
+        u"「", u"」", "(",")"]
+RMLISTS.extend(chars)
+DIC = {}
+NDIC = {}
+P = re.compile('http:[a-zA-Z0-9./%_-]*')
 
-for txt in rf.readlines():
+for txt in RF.readlines():
 #    print 'PREV : ',txt
     txt = conv(txt)
-    if p.search(txt) != None :
-        txt = p.sub("",txt)
+    if P.search(txt) != None :
+        txt = P.sub("", txt)
 #        print 'AFTER : ',txt
-    n = m.parseToNode(txt)
+    n = M.parseToNode(txt)
     n = n.next
     while n:
-        lengths = max([n.feature.find(a) for a in grplists ])
-        if n.surface in rmlists :
-            n =n.next
+        lengths = max([n.feature.find(a) for a in GRPLISTS ])
+        if n.surface in RMLISTS :
+            n = n.next
             continue
         if n.surface.isdigit() :
             n = n.next
             continue
         if lengths == -1 :
-            if not dic.has_key(n.surface):
-                dic[n.surface] = 1
-                ndic[n.surface] = n.feature
+            if not DIC.has_key(n.surface):
+                DIC[n.surface] = 1
+                NDIC[n.surface] = n.feature
             else :
-                dic[n.surface] += 1
+                DIC[n.surface] += 1
         n = n.next
 
-lists = [(x,y) for x,y in dic.items()]
-lists = sorted(lists, key=lambda x:x[1],reverse=True)
-one, two, three = lists[0][0], lists[1][0], lists[2][0]
-wf.write('************************** KEYWORD **************************\n')
-word = one+','+two+','+three+'\n'
-wf.write(word)
-wf.write('*************************************************************\n')
-for x,y in lists :
-    wf.write(x)
-    wf.write(' : ')
-    wf.write(str(y))
-    wf.write('            ')
-    wf.write(ndic[x])
-    wf.write('\n')
+LISTS = [(x, y) for x, y in DIC.items()]
+LISTS = sorted(LISTS, key=lambda x:x[1], reverse=True)
+ONE, TWO, THREE = LISTS[0][0], LISTS[1][0], LISTS[2][0]
+WF.write('************************** KEYWORD **************************\n')
+WORD = ONE+','+TWO+','+THREE+'\n'
+WF.write(WORD)
+WF.write('*************************************************************\n')
+for x, y in LISTS :
+    WF.write(x)
+    WF.write(' : ')
+    WF.write(str(y))
+    WF.write('            ')
+    WF.write(NDIC[x])
+    WF.write('\n')
 
-wf.write('*************************************************************\n')
-wf.write('median keyword color y_point med-y\n')
-img1 = Image.new("RGB", (650,650), (0xff,0xff,0xff))
-draw = ImageDraw.Draw(img1)
+WF.write('*************************************************************\n')
+WF.write('median keyword color y_point med-y\n')
+IMG1 = Image.new("RGB", (650, 650), (0xff, 0xff, 0xff))
+DRAW = ImageDraw.Draw(IMG1)
 
-listset = list(set([y for x,y in lists]))
-if len(listset) % 2 == 0 :
-    med = listset[len(listset)/2] +listset[len(listset)/2+1] / 2
+LISTSET = list(set([y for x, y in LISTS]))
+if len(LISTSET) % 2 == 0 :
+    med = LISTSET[len(LISTSET)/2] +LISTSET[len(LISTSET)/2+1] / 2
 else :
-    med = listset[len(listset)/2]
+    med = LISTSET[len(LISTSET)/2]
 
-for x,y in lists :
+for x, y in LISTS :
     x = x.decode('utf-8')
     yd = y % 10
-    font = ImageFont.truetype("C:\WINDOWS\Fonts\meiryo.ttc",5*yd)
-    ix = random.randint(20,500)
-    iy = random.randint(20,600)
-    color = (0,0,0)
+    font = ImageFont.truetype("C:\WINDOWS\Fonts\meiryo.ttc", 5*yd)
+    ix = random.randint(20, 500)
+    iy = random.randint(20, 600)
+    color = (0, 0, 0)
     ym = y - med
 
     if ym <= -10.0 :
-        color = (204,255,255)
+        color = (204, 255, 255)
     if -10.0 < ym and ym < -5.0 :
-        color = (204,204,204)
+        color = (204, 204, 204)
     if -5.0 <= ym and ym < 0 :
-        color = (204,153,153)
+        color = (204, 153, 153)
     if 0 <= ym and ym < 5 :
-        color = (204,102,102)
+        color = (204, 102, 102)
     if 5 <= ym and ym < 10 :
-        color = (204,51,51)
+        color = (204, 51, 51)
     if 10 <= ym :
-        color = (204,0,0)
+        color = (204, 0, 0)
 
-    draw.text((ix,iy),x,fill=color, font=font)
+    DRAW.text((ix, iy), x, fill=color, font=font)
     txt = str(med) + ' ' + str(x) + ' ' + str(color) + ' ' + str(y) + ' ' + str(ym) + '\n'
-    wf.write(txt)
+    WF.write(txt)
 
-wf.close()
-img1.save("e:\PySave\script-save\sample633a.jpg")
-img1.show()
+WF.close()
+IMG1.save("e:\PySave\script-save\sample633a.jpg")
+IMG1.show()
 
