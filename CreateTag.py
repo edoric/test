@@ -1,5 +1,23 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
+import os
+import imp
+
+if hasattr(sys,"setdefaultencoding"):
+    sys.setdefaultencoding("utf-8")
+
+def main_is_frozen():
+    return (hasattr(sys, "frozen") or 
+            hasattr(sys, "importers")
+            or imp.is_frozen("__main__"))
+
+def get_main_dir():
+    if main_is_frozen():
+        return os.path.abspath(os.path.dirname(sys.executable))
+    return os.path.abspath(os.path.dirname(sys.argv[0]))
+
+
 
 def guess_charset(data) :
     func = lambda d, enc: d.decode(enc) and enc
@@ -41,7 +59,7 @@ import re
 import random
 from PIL import Image, ImageDraw, ImageFont
 
-PATH = "E:\PySave\Example"
+PATH = "C:\Documents and Settings"
 WNAME = "tag.txt"
 RNAME = "create.txt"
 
